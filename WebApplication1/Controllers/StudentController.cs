@@ -10,13 +10,38 @@ namespace WebApplication1.Controllers
     public class StudentController : Controller
     {
         // GET: Student
-        public ActionResult Index(string searchText = "")
+        public ActionResult Index(string searchFirstName = "", string searchLastName = "", string searchFullName = "", string searchBy = "", string searchCriteria = "")
         {
             using (MyDBEntities db = new MyDBEntities())
             {
-                // Filter students based on searchText
-                var students = db.Students.ToList().Where(s => s.fname.Contains(searchText)); ;
-                
+                // Filter students based on searchFirstName and searchLastName
+                var students = db.Students.AsQueryable();
+
+                if (!string.IsNullOrEmpty(searchFirstName))
+                {
+                    students = students.Where(s => s.fname.Contains(searchFirstName));
+                }
+
+                if (!string.IsNullOrEmpty(searchLastName))
+                {
+                    students = students.Where(s => s.lname.Contains(searchLastName));
+                } 
+                if (!string.IsNullOrEmpty(searchFullName))
+                {
+                    students = students.Where(s => s.lname.Contains(searchFullName) || s.fname.Contains(searchFullName));
+                }
+                if (!string.IsNullOrEmpty(searchCriteria) && !string.IsNullOrEmpty(searchBy))
+                {
+                    if (searchBy == "firstName")
+                    {
+                        students = students.Where(s => s.fname.Contains(searchCriteria));
+                    }
+                    else if (searchBy == "lastName")
+                    {
+                        students = students.Where(s => s.lname.Contains(searchCriteria));
+                    }
+                }
+
                 List<Student> std = students.ToList();
                 return View(std);
             }
